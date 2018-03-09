@@ -5,10 +5,13 @@
 #else
 //Here you include inet, arpa stuff and other linuxy thingies...
 #endif
+
 #include <stdio.h>
+#include "PODApi.h"
 
 typedef struct state_
 {
+	unity_debug_callback unity_log_print_fptr;
 #ifdef _WIN32
 	WSADATA wsa;
 	SOCKET socket;
@@ -19,3 +22,4 @@ typedef struct state_
 } state;
 
 void POD_Internal_initNetwork(state* s);
+void POD_Internal_closeNetwork(state* s);

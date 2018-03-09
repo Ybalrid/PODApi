@@ -13,3 +13,11 @@ void POD_Internal_initNetwork(state* s)
 	return POD_Internal_initNetwork_POSIX(s);
 #endif
 }
+
+void POD_Internal_closeNetwork(state* s)
+{
+#ifdef _WIN32
+	POD_Internal_closeNetwork_WIN32(s);
+#else
+#endif
+}
