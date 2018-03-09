@@ -19,7 +19,11 @@ typedef struct state_
 #else
 	//Linux/Android NDK here
 #endif
+
+	POD_Time mostRecentTime;
+	POD_Float podWalkX, podWalkY;
 } state;
 
 void POD_Internal_initNetwork(state* s);
 void POD_Internal_closeNetwork(state* s);
+void POD_Internal_processIncomingData(state* s);

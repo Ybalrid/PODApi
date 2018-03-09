@@ -13,23 +13,22 @@ float vect[3] = { 1, 2, 3 };
 //Global state of the library :
 state* s = NULL;
 
-int unity_printf(const char* str, ...)
+int POD_printf(const char* str, ...)
 {
-	if(!s->unity_log_print_fptr) return 0;
-
 	//Unpack variadic
 	va_list args;
 	va_start(args, str);
 
 	//Calcuate size of string
-	size_t need = vsnprintf(NULL, 0, str, args);
+	const size_t need = vsnprintf(NULL, 0, str, args);
 
 	//Build string
-	char* buffer = malloc(need);
-	int printed  = vsnprintf(buffer, need, str, args);
+	char* buffer = (char*)malloc(need);
+	const int printed  = vsnprintf(buffer, need, str, args);
 
 	//Print to unity's log :
-	s->unity_log_print_fptr(buffer);
+	if(s->unity_log_print_fptr) s->unity_log_print_fptr(buffer);
+	puts(buffer);
 
 	//Cleanup
 	va_end(args);
@@ -66,13 +65,16 @@ POD_EXPORT void POD_init()
 
 	s						= (state*)malloc(sizeof(state));
 	s->unity_log_print_fptr = NULL;
+	s->mostRecentTime = -1;
+	s->podWalkX = 0;
+	s->podWalkY = 0;
 
 	POD_Internal_initNetwork(s);
 }
 
 POD_EXPORT void POD_update()
 {
-	unity_printf("update : %s %d %x", "Hello this is a string", 42, 0x42);
+	POD_Internal_processIncomingData(s);
 }
 
 POD_EXPORT void POD_exit()
@@ -80,4 +82,18 @@ POD_EXPORT void POD_exit()
 	POD_Internal_closeNetwork(s);
 	free(s);
 	s = NULL;
+}
+
+POD_EXPORT void POD_get_walk_linear_speed_vector(float* output)
+{
+	//This is a 3D vector of floats
+	static float walk_data_holder[3];
+
+	//Assign the data into this array (format it as a 3D vector in horizontal plane from a 2D vector)
+	walk_data_holder[0] = s->podWalkX;
+	walk_data_holder[1] = 0;
+	walk_data_holder[2] = s->podWalkY;
+
+	//Write vector into the buffer provided by app or game engine (Unity...)
+	memcpy(output, walk_data_holder, sizeof walk_data_holder);
 }

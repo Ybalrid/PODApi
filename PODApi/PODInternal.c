@@ -5,6 +5,8 @@
 #else
 #endif
 
+#include "packets.h"
+
 void POD_Internal_initNetwork(state* s)
 {
 #ifdef _WIN32
@@ -20,4 +22,17 @@ void POD_Internal_closeNetwork(state* s)
 	POD_Internal_closeNetwork_WIN32(s);
 #else
 #endif
+}
+
+POD_Byte buffer[128];
+
+void POD_Internal_processIncomingData(state* s)
+{
+
+#ifdef _WIN32
+	POD_Internal_processIncomingData_WIN32(s);
+#else
+#endif
+
+
 }
