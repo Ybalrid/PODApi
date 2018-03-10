@@ -23,8 +23,8 @@ int POD_printf(const char* str, ...)
 	const size_t need = vsnprintf(NULL, 0, str, args);
 
 	//Build string
-	char* buffer = (char*)malloc(need);
-	const int printed  = vsnprintf(buffer, need, str, args);
+	char* buffer	  = (char*)malloc(need);
+	const int printed = vsnprintf(buffer, need, str, args);
 
 	//Print to unity's log :
 	if(s->unity_log_print_fptr) s->unity_log_print_fptr(buffer);
@@ -52,7 +52,9 @@ POD_EXPORT void get_vector(float* out)
 
 POD_EXPORT void register_debug_callback(unity_debug_callback callback)
 {
+	if(!callback) return;
 	s->unity_log_print_fptr = callback;
+	POD_printf("Console callback hooked sucessfully!");
 }
 
 POD_EXPORT void POD_init()
@@ -65,9 +67,9 @@ POD_EXPORT void POD_init()
 
 	s						= (state*)malloc(sizeof(state));
 	s->unity_log_print_fptr = NULL;
-	s->mostRecentTime = -1;
-	s->podWalkX = 0;
-	s->podWalkY = 0;
+	s->mostRecentTime		= -1;
+	s->podWalkX				= 0;
+	s->podWalkY				= 0;
 
 	POD_Internal_initNetwork(s);
 }
@@ -96,4 +98,9 @@ POD_EXPORT void POD_get_walk_linear_speed_vector(float* output)
 
 	//Write vector into the buffer provided by app or game engine (Unity...)
 	memcpy(output, walk_data_holder, sizeof walk_data_holder);
+}
+
+long long POD_get_most_recent_time_code()
+{
+	return s->mostRecentTime;
 }

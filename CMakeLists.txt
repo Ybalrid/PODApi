@@ -19,4 +19,7 @@ endif(WIN32)
 add_executable(PODApiTest ${PODApi_TEST} ${PODApi_H})
 target_link_libraries(PODApiTest PODApi)
 
+add_executable(POD_Simulator ./test_pod_simulator/main.c ./include/packets.h)
+target_link_libraries(POD_Simulator wsock32 ws2_32)
+
 

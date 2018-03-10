@@ -16,3 +16,4 @@ POD_EXPORT void POD_init();
 POD_EXPORT void POD_update();
 POD_EXPORT void POD_exit();
 POD_EXPORT void POD_get_walk_linear_speed_vector(float* output);
+POD_EXPORT long long POD_get_most_recent_time_code();

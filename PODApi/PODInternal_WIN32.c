@@ -59,7 +59,7 @@ void POD_Internal_processIncomingData_WIN32(state* s)
 			return;
 		}
 
-		if (status == WSAEMSGSIZE)
+		if(status == WSAEMSGSIZE)
 		{
 			POD_printf("Internal network buffer overlow. You need to call POD_update() more often!");
 		}
@@ -72,15 +72,17 @@ void POD_Internal_processIncomingData_WIN32(state* s)
 
 	if(status > 0)
 	{
-		int size	= status;
+		int size	   = status;
 		POD_Byte* data = buffer;
 
+		fprintf(stderr, "type = %x\n", data[0]);
 		while(size > 0)
 		{
 			switch(data[0])
 			{
 				case PODAPI_WALK_VEC:
 				{
+					fprintf(stderr, "walk data packet!");
 					static const size_t expectedSize = sizeof(struct POD_WalkVector);
 					if(size < expectedSize)
 					{
@@ -90,17 +92,19 @@ void POD_Internal_processIncomingData_WIN32(state* s)
 					}
 
 					struct POD_WalkVector* packet = (struct POD_WalkVector*)buffer;
-					//printf("Walk vector at timepoint %lld: X=%f, Y=%f\n", packet->timepoint, packet->x, packet->y);
+					fprintf(stderr, "Walk vector at timepoint %lld: X=%f, Y=%f\n", packet->timepoint, packet->x, packet->y);
 
 					s->mostRecentTime = packet->timepoint;
-					s->podWalkX = packet->x;
-					s->podWalkY = packet->y;
+					s->podWalkX		  = packet->x;
+					s->podWalkY		  = packet->y;
 
 					data += expectedSize; //Advance the pointer
 					size -= expectedSize; //Remove the read data from the recv data.
 				}
 				default:
-				break;
+					//Unrecognized packet type, break loop:
+					size = 0;
+					break;
 			}
 		}
 	}
