@@ -32,7 +32,7 @@ void POD_Internal_initNetwork_WIN32(state* s)
 	//Configure to listen for incoming UDP datagrams on port 4242
 	s->server.sin_family	  = AF_INET;
 	s->server.sin_addr.s_addr = INADDR_ANY;
-	s->server.sin_port		  = htons(4242);
+	s->server.sin_port		  = htons(POD_PROTOCOL_PORT);
 	if(bind(s->socket, (struct sockaddr*)&s->server, sizeof(s->server)) == SOCKET_ERROR)
 	{
 		puts("SOCKET_ERROR");
