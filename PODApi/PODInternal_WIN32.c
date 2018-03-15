@@ -59,7 +59,7 @@ size_t recv_all(state* s)
 		//ioctlsocket(s->socket, FIONREAD, &bytes_available);
 		//POD_printf("Available : %d\n", bytes_available);
 
-		status = recv(s->socket, (char*)s->buffer + received, sizeof s->buffer - received, 0);
+		status = recv(s->socket, (char*)s->buffer + received, (int)(sizeof s->buffer - received), 0);
 
 		if(status > 0)
 			received += status;
@@ -72,8 +72,7 @@ size_t recv_all(state* s)
 void POD_Internal_processIncomingData_WIN32(state* s)
 {
 	static int size;
-
-	size = recv_all(s);
+	size = (int)recv_all(s);
 
 	if(size > 0)
 	{
@@ -86,7 +85,7 @@ void POD_Internal_processIncomingData_WIN32(state* s)
 			{
 				case PODAPI_WALK_VEC:
 				{
-					static const size_t expectedSize = sizeof(struct POD_WalkVector);
+					static const int expectedSize = (int)sizeof(struct POD_WalkVector);
 					if(size < expectedSize)
 					{
 						POD_printf("packet buffer problem");
