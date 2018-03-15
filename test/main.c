@@ -18,11 +18,11 @@ int main()
 	float v[3] = { 0 };
 	while(running)
 	{
-		Sleep(11);
+		Sleep(1000);
 		POD_update();
 
 		POD_get_walk_linear_speed_vector(v);
-		printf("speed vector exposed to game engine : %f, %f, %f\n", v[0], v[1], v[2]);
+		printf("speed vector time %lld exposed to game engine : %f, %f, %f\n", POD_get_most_recent_time_code(), v[0], v[1], v[2]);
 
 		clock_t end   = clock();
 		const float s = (float)(end - start) / CLOCKS_PER_SEC;

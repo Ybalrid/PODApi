@@ -47,33 +47,37 @@ void POD_Internal_closeNetwork_WIN32(state* s)
 	WSACleanup();
 }
 
-POD_Byte buffer[128];
+size_t recv_all(state* s)
+{
+	static size_t received;
+	static int status;
+	received = 0;
+
+	do
+	{
+		//u_long bytes_available;
+		//ioctlsocket(s->socket, FIONREAD, &bytes_available);
+		//POD_printf("Available : %d\n", bytes_available);
+
+		status = recv(s->socket, (char*)s->buffer + received, sizeof s->buffer - received, 0);
+
+		if(status > 0)
+			received += status;
+
+	} while(status > 0);
+
+	return received;
+}
+
 void POD_Internal_processIncomingData_WIN32(state* s)
 {
-	int status = recv(s->socket, buffer, 128, 0);
-	if(status < 0)
-	{
-		if(status == WSAEWOULDBLOCK) //Windows specific, create dispatcher function
-		{
-			puts("no data.");
-			return;
-		}
+	static int size;
 
-		if(status == WSAEMSGSIZE)
-		{
-			POD_printf("Internal network buffer overlow. You need to call POD_update() more often!");
-		}
-	}
+	size = recv_all(s);
 
-	if(status == 0)
+	if(size > 0)
 	{
-		puts("no data.");
-	}
-
-	if(status > 0)
-	{
-		int size	   = status;
-		POD_Byte* data = buffer;
+		POD_Byte* data = s->buffer;
 
 		fprintf(stderr, "type = %x\n", data[0]);
 		while(size > 0)
@@ -82,7 +86,6 @@ void POD_Internal_processIncomingData_WIN32(state* s)
 			{
 				case PODAPI_WALK_VEC:
 				{
-					fprintf(stderr, "walk data packet!");
 					static const size_t expectedSize = sizeof(struct POD_WalkVector);
 					if(size < expectedSize)
 					{
@@ -91,8 +94,7 @@ void POD_Internal_processIncomingData_WIN32(state* s)
 						break;
 					}
 
-					struct POD_WalkVector* packet = (struct POD_WalkVector*)buffer;
-					fprintf(stderr, "Walk vector at timepoint %lld: X=%f, Y=%f\n", packet->timepoint, packet->x, packet->y);
+					struct POD_WalkVector* packet = (struct POD_WalkVector*)data;
 
 					s->mostRecentTime = packet->timepoint;
 					s->podWalkX		  = packet->x;
@@ -101,7 +103,9 @@ void POD_Internal_processIncomingData_WIN32(state* s)
 					data += expectedSize; //Advance the pointer
 					size -= expectedSize; //Remove the read data from the recv data.
 				}
+				break;
 				default:
+					POD_printf("Something went wrong while reading packets!\n");
 					//Unrecognized packet type, break loop:
 					size = 0;
 					break;

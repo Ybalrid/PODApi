@@ -22,6 +22,9 @@ typedef struct state_
 
 	POD_Time mostRecentTime;
 	POD_Float podWalkX, podWalkY;
+
+	POD_Byte buffer[4096];
+
 } state;
 
 void POD_Internal_initNetwork(state* s);
