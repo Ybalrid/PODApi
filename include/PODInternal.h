@@ -14,8 +14,9 @@ typedef struct state_
 	unity_debug_callback unity_log_print_fptr;
 #ifdef _WIN32
 	WSADATA wsa;
-	SOCKET socket;
-	struct sockaddr_in server, si_other;
+	SOCKET socket, send_socket;
+	struct sockaddr_in server, packet_source;
+	int packet_source_len;
 #else
 	//Linux/Android NDK here
 #endif
