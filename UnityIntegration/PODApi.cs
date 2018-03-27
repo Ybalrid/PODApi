@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.XR;
 using System.Runtime.InteropServices;
 
 public class PODApi : MonoBehaviour {
@@ -42,7 +43,13 @@ public class PODApi : MonoBehaviour {
     //Some static data storage
     private static float[] tempArray = {0,0,0};
     private static long mostRecentTimeCode = 0;
+
+    //For unity specific calibration
     private static Vector3 walkSpeedVector = new Vector3();
+    private static Quaternion calibration = new Quaternion();
+    private static Vector3 viewDirection = new Vector3();
+    private static Vector3 forwardVect = new Vector3(0,0,1);
+    private static Vector3 upVect = new Vector3(0, 1, 0);
 
     // Use this for initialization
     void Start ()
@@ -50,6 +57,9 @@ public class PODApi : MonoBehaviour {
         //Initialization of the DLL here
         POD_init();
         register_debug_callback(native_plugin_console_log);
+
+        calibration = Quaternion.identity;
+
     }
 
     void OnDestroy()
@@ -61,6 +71,7 @@ public class PODApi : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+        viewDirection = GetComponentInChildren<Camera>().transform.rotation * forwardVect;
         //This reads what has been received from the network 
         POD_update();
 
@@ -69,16 +80,31 @@ public class PODApi : MonoBehaviour {
         POD_get_walk_linear_speed_vector(tempArray);
         walkSpeedVector.x = tempArray[0];
         walkSpeedVector.y = tempArray[1];
-        walkSpeedVector.z = tempArray[2];
+        walkSpeedVector.z = -tempArray[2];
     }
 
     public static Vector3 getWalkSpeedVector()
     {
-        return walkSpeedVector;
+        return calibration * walkSpeedVector;
     }
 
     public static long getMostRecentTimeCode()
     {
         return mostRecentTimeCode;
+    }
+
+    public static void calibrate()
+    {
+        viewDirection.y = 0;
+        viewDirection.Normalize();
+
+        Debug.Log("View direction is " + viewDirection);
+
+        float angle = Vector3.Angle(viewDirection, forwardVect);
+
+        Debug.Log("Calculated angle is " + angle);
+
+        calibration = Quaternion.AngleAxis(-angle, upVect);
+
     }
 }
