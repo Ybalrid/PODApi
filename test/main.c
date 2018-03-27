@@ -18,7 +18,7 @@ int main()
 	float v[3] = { 0 };
 	while(running)
 	{
-		Sleep(1000);
+		Sleep(10);
 		POD_update();
 
 		POD_get_walk_linear_speed_vector(v);

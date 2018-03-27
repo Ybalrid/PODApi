@@ -112,6 +112,23 @@ void POD_Internal_processIncomingData_WIN32(state* s)
 			fprintf(stderr, "packet type: = 0x%x\n", data[0]);
 			switch(data[0])
 			{
+				case PODAPI_HELLO:
+				{
+					static const int expectedSize = (int)sizeof(struct POD_message);
+					if (size < expectedSize)
+					{
+						size = 0;
+						break;
+					}
+
+					struct POD_message* message = (struct POD_message*)data;
+					POD_printf("message : %s\n", message->text);
+
+					size -= sizeof(struct POD_message);
+					data += sizeof(struct POD_message);
+				}
+				break;
+
 				case PODAPI_SERVER_ASK:
 				{
 					static const int expectedSize = (int)sizeof(struct POD_ServerAsk);
@@ -141,6 +158,7 @@ void POD_Internal_processIncomingData_WIN32(state* s)
 					size -= expectedSize;
 				}
 				break;
+
 				case PODAPI_WALK_VEC:
 				{
 					static const int expectedSize = (int)sizeof(struct POD_WalkVector);
@@ -161,8 +179,10 @@ void POD_Internal_processIncomingData_WIN32(state* s)
 					size -= expectedSize; //Remove the read data from the recv data.
 				}
 				break;
+
 				default:
 					POD_printf("Something went wrong while reading packets!\n");
+					POD_printf("Type was %d\n", data[0]);
 					//Unrecognized packet type, break loop:
 					size = 0;
 					break;
