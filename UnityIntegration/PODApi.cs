@@ -27,6 +27,9 @@ public class PODApi : MonoBehaviour {
 
     //This is the actual method that will print the string into the log and that will be
     //passed via register_debug_callback to the DLL
+
+    //This is called from the DLL, we need the MonoPInvokeCallbakc attribute
+    [MonoPInvokeCallback(typeof(unity_debug_callback))]
     private static void native_plugin_console_log(string message)
     {
         Debug.Log("PODApi: " + message);
